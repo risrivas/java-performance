@@ -1,3 +1,69 @@
 # Compiler Flags
 
 -XX:+PrintCompilation
+
+java -XX:+PrintCompilation Main 5000
+
+# sample output
+...
+...
+    246   20  s    3       java.lang.StringBuffer::append (13 bytes)
+    249   21       3       java.lang.String::<init> (82 bytes)
+    249   22       3       java.lang.String::startsWith (7 bytes)
+    250   23       3       java.util.HashMap::hash (20 bytes)
+    251   24       1       java.util.ArrayList::size (5 bytes)
+    251   25       3       java.lang.String::indexOf (70 bytes)
+    251   26       3       java.util.HashMap::getNode (148 bytes)
+    252   28     n 0       sun.misc.Unsafe::getObjectVolatile (native)   
+    252   29       3       java.lang.String::indexOf (7 bytes)
+    252   27       3       java.util.concurrent.ConcurrentHashMap::tabAt (21 bytes)
+    253   30       1       java.lang.Integer::intValue (5 bytes)
+    253   31       1       java.lang.Boolean::booleanValue (5 bytes)
+    253   32       3       com.rishi.PrimeNumbers::isPrime (35 bytes)
+    253   34       3       java.lang.Number::<init> (5 bytes)
+    254   35       3       java.lang.Integer::<init> (10 bytes)
+    254   33       3       java.lang.Integer::valueOf (32 bytes)
+    254   36       3       java.util.ArrayList::add (29 bytes)
+    254   38 %     4       com.rishi.PrimeNumbers::isPrime @ 2 (35 bytes)
+    255   37       3       java.util.ArrayList::ensureCapacityInternal (13 bytes)
+...
+...
+    369   39       3       com.rishi.PrimeNumbers::getNextPrimeAbove (43 bytes)   made not entrant
+	
+
+
+- First column is the timer in ms, that it took to run and its cumulative. Last row is the total time.
+- Second column is the order that the line item was run.
+- Third column is blank or 
+n = native, s = synchronized
+! would mean that some exception handling was going on
+% would mean that the code has been natively compiled and is running in memory under the code cache.
+
+- Fourth column has a value from 0 to 4. This corresponds as an ENUM to what type of compilation has taken place.
+0: no compilation took place (code was interpreted)
+1 through 4: is a range of compilation complexity (4 being greatest)
+
+- Fifth and final column is the line item that was run.
+
+# Compilers C1 & C2
+There are two compilers in Java. 
+C1 handles Native compilation levels 1-3, while C2 handles native level 4 only 
+(which stores native compiles into the code cache).
+
+The JVM determines the compilation level based on how often it is being run and 
+how complex or time consuming it is – through profiling.
+
+As there is a tradeoff in optimizing more complex code (higher native tier/levels), 
+it only will do this with methods that are called more often, or have greater complexity.
+
+# Outputting to a file
+
+java -XX:+UnlockDiagnosticVMOptions -XX:+LogCompilation Main 5000
+
+- creates a log file as : hotspot_pid11016.log
+
+
+
+
+
+
