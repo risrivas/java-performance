@@ -1,6 +1,8 @@
 # Compiler Flags
 
+######################
 -XX:+PrintCompilation
+######################
 
 java -XX:+PrintCompilation Main 5000
 
@@ -56,11 +58,51 @@ how complex or time consuming it is – through profiling.
 As there is a tradeoff in optimizing more complex code (higher native tier/levels), 
 it only will do this with methods that are called more often, or have greater complexity.
 
+######################
 # Outputting to a file
+######################
 
 java -XX:+UnlockDiagnosticVMOptions -XX:+LogCompilation Main 5000
 
 - creates a log file as : hotspot_pid11016.log
+
+######################
+-XX:+PrintCodeCache
+-XX:ReservedCodeCacheSize=28m
+######################
+
+java -XX:+PrintCodeCache Main 5000
+
+- prints the code cache size
+
+- sample output
+CodeCache: size=245760Kb used=1156Kb max_used=1168Kb free=244603Kb
+ bounds [0x0000000002d70000, 0x0000000002fe0000, 0x0000000011d70000]
+ total_blobs=300 nmethods=46 adapters=167
+ compilation: enabled
+
+size = around 20 MB
+used = around 1 MB
+
+- Java 8+ versions can have 240+ MB cache size
+- tune params
+InitialCodeCacheSize
+ReservedCodeCacheSize
+CodeCacheExpansionSize
+
+----------------
+
+java -XX:ReservedCodeCacheSize=28m -XX:+PrintCodeCache Main 5000
+
+- sample output
+CodeCache: size=28672Kb used=1256Kb max_used=1268Kb free=27416Kb
+ bounds [0x0000000003020000, 0x0000000003290000, 0x0000000004c20000]
+ total_blobs=345 nmethods=82 adapters=176
+ compilation: enabled
+
+
+
+
 
 
 
