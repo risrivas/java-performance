@@ -6,6 +6,10 @@
 
 java -XX:+PrintCompilation Main 5000
 
+- run from IntelliJ Terminal
+C:\Users\rishi\Downloads\Study\Udemy\java-performance\PerformanceExample1\target\classes>
+java -XX:+PrintCompilation com.rishi.Main 5000
+
 # sample output
 ...
 ...
@@ -139,14 +143,65 @@ If OS is 64-bit, can use
 -d64
 
 
+######################
+-XX:-TieredCompilation
+######################
+
+only interpret and not compile !
+
+java -XX:-TieredCompilation -XX:+PrintCompilation Main 5000
+
+- only use for very small application with few lines of code
 
 
+######################
+# Compilation Tuning
+-XX:CICompilerCount=n
+-XX:CompileThreshold=n
+######################
+
+2 factors:
+- no of threads involved in compilation
+- threshold required for a method to run before its natively compiled and put in code cache
+level 4 by C2
+
+## no of threads
+-XX:CICompilerCount=n
+
+java -XX:+PrintFlagsFinal
+
+- check for CICompilerCount
+CICompilerCount = 3
+
+so, 3 threads available for compilation
+
+- another easier way to get threads
+jinfo -flag CICompilerCount <pid>
+
+sample output:
+$ jinfo -flag CICompilerCount 13784
+-XX:CICompilerCount=3
 
 
+- increase threads and compile - doesn't make any difference if the code is small
+java -XX:CICompilerCount=6 -XX:+PrintCompilation com.rishi.Main 15000
+
+- default: atleast 2 threads for server JVM - for C1 and C2
 
 
+## threshold
+-XX:CompileThreshold=n
 
+jinfo -flag CompileThreshold <pid>
 
+- sample output
+$ jinfo -flag CompileThreshold 13784
+-XX:CompileThreshold=10000
+
+- reduce the threshold
+java -XX:CICompilerCount=4 -XX:CompileThreshold=1000 -XX:+PrintCompilation com.rishi.Main 15000
+
+even worse performance
 
 
 
