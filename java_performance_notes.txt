@@ -252,4 +252,19 @@ Thread A will wait at join() call until thread B's run method finishes.
 After join method returns, all subsequent actions in thread A will see all actions performed in thread B's run method happened before them.
 
 
+## Passing Objects between methods
+
+- always pass by value
+- final - helps for inlining by compilers  
+variable, method, class
+
+- java doesn't support "const correctness"
+example:
+final Customer c = new Customer("Rishi");
+
+c can not point to any other object in heap, however, Customer object's state can be changed
+
+ 
+
+
 
