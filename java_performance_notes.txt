@@ -264,6 +264,20 @@ final Customer c = new Customer("Rishi");
 
 c can not point to any other object in heap, however, Customer object's state can be changed
 
+## Escaping references
+
+class having map reference
+if map is having getter, it can cause the breach in encapsulation if called clear()
+
+- strategy 1 is to pass iterator instead of getter for map
+however it will still have remove method to mutate the map
+
+- strategy 2 - return the copy of map
+small memory footprint, however not ideal solution
+
+- strategy 3 - return the copy but as an immutable map
+
+
  
 
 
