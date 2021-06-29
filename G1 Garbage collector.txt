@@ -1,0 +1,77 @@
+######################################################
+Youtube: https://www.youtube.com/watch?v=Gee7QfoY8ys
+######################################################
+
+# 4 types of collectors
+1. Serial - single thread GC
+2. Parallel
+- multiple threads for GC
+- throughput not affected as not running concurrently with application threads
+3. Concurrent
+- multiple threads running in parallel with application threads affecting throughput
+- low pauses
+4. G1
+- Long term replacement of CMS
+- Default GC for JDK9
+- Low pauses valued more than max throughput
+
+#############
+# G1 Basics
+#############
+- Easy tuning:
+java -Xmx32G -XX:MaxGCPauseMillis=100 ...
+
+# Tuning based on max Stop-The-World pause
+-XX:MaxGCPauseMillis=<>
+Default is 250 ms
+
+- Generational collector
+
+# Implements 2 GC algorithms:
+1. Young Generation GC - stop-the-world, parallel, copying
+2. Old Generation GC
+- mostly concurrent marking - same as CMS; however it doesn't sweep or reclaim space immediately
+- Incremental compaction - piggybacked on young generation GC
+
+#############
+# G1 Logging
+#############
+
+# Always keep enabled for logging - very little overhead
+-XX:+PrintGCDateStamps
+Prints date and uptime
+
+-XX:+PrintGCDetails
+Prints G1 Phases
+
+-XX:+PrintAdaptiveSizePolicy
+Prints ergonomic decisions
+
+-XX:+PrintTenuringDistribution
+Print aging information of survivor regions
+
+###################
+# G1 Memory Layout
+###################
+
+- Divides the heap into small "regions"
+
+# Targets 2048 regions - can be tuned by:
+-XX:G1HeapRegionSize=<>
+
+- Eden, Survivor, Old regions
+- Humongous regions:
+When a single object occupies > 50% of the region
+Typically byte[] or char[]
+
+## G1 Young GC
+- JVM starts, G1 prepares Eden regions
+- Application runs and allocates into Eden regions
+- Eden regions fill up
+- When all Eden regions are full -> Young GC
+
+----- Time till 7:40
+
+
+
+
