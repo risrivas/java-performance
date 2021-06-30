@@ -4,12 +4,15 @@ Youtube: https://www.youtube.com/watch?v=Gee7QfoY8ys
 
 # 4 types of collectors
 1. Serial - single thread GC
+
 2. Parallel
 - multiple threads for GC
 - throughput not affected as not running concurrently with application threads
+
 3. Concurrent
 - multiple threads running in parallel with application threads affecting throughput
 - low pauses
+
 4. G1
 - Long term replacement of CMS
 - Default GC for JDK9
@@ -23,7 +26,7 @@ java -Xmx32G -XX:MaxGCPauseMillis=100 ...
 
 # Tuning based on max Stop-The-World pause
 -XX:MaxGCPauseMillis=<>
-Default is 250 ms
+Default is 200 ms
 
 - Generational collector
 
@@ -64,13 +67,81 @@ Print aging information of survivor regions
 When a single object occupies > 50% of the region
 Typically byte[] or char[]
 
-## G1 Young GC
+###################
+# G1 Young GC
+###################
 - JVM starts, G1 prepares Eden regions
 - Application runs and allocates into Eden regions
 - Eden regions fill up
 - When all Eden regions are full -> Young GC
 
------ Time till 7:40
+- Application not only allocates but also modifies pointers of existing objects
+- An "old" object may point to an "eden" object
+ex: an "old" Map has just been put() a new entry
+- G1 must track these inter-generation pointers
+(Old | Humongous) --> (Eden | Survivor) pointers
+
+- Eden has got a data structure - Remembered Set (RS)
+- it contains details about which object in old points to objects in Eden
+- Another data structure - Card table which remembers the same in old region
+
+- A write barrier tracks pointer updates
+object.field = <reference>
+
+- Triggers every time a pointer is written like above:
+Records the write information in the card table
+Cards are stored in a queue (dirty card queue)
+The queue is divided in 4 zones: white, green, yellow, red
+
+- When queue is filled with white and moves into green
+- G1 fires background threads called as Refinement threads
+which writes these object pointer details in Remebered Set (RS) which is a highly contended DS.
+
+- White Zone
+Nothing happens, buffers are left unprocessed
+
+- Green Zone (-XX:G1ConcRefinementGreenZone=<>)
+Refinement threads are activated
+Buffers are processed and the queue drained
+
+- Yellow Zone (-XX:G1ConcRefinementYellowZone=<>)
+All available refinement threads are active
+
+- Red Zone (-XX:G1ConcRefinementRedZone=<>)
+Application thread process the buffers instead of refinement threads inducing pauses
+
+###################
+# G1 Young GC Phases
+###################
+
+- Stops the world
+- builds a "collection set" - the regions that will be subject to collection
+- the collection set contains:
+Eden regions
+Survivor regions
+
+- First phase: "Root Scanning"
+Static and local objects are scanned for all the live threads
+
+- Second phase: "Update RS"
+Drains the dirty card queue to update the RS
+
+- Third phase: "Process RS"
+Detect the Eden objects pointed by Old objects
+
+- Fourth phase: "Object Copy"
+Object graph is traversed
+Live objects copied to Survivor/Old regions
+
+- Fifth phase: "Reference Processing"
+Soft, weak, phantom, final, JNI weak references
+Always enable: -XX:+ParallelRefProcEnabled - default is single thread
+More details with -XX:PrintReferenceGC
+
+
+
+
+----- Time till 22:50
 
 
 
