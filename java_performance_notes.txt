@@ -1,3 +1,4 @@
+
 # Compiler Flags
 
 ######################
@@ -22,7 +23,7 @@ java -XX:+PrintCompilation com.rishi.Main 15000
     251   24       1       java.util.ArrayList::size (5 bytes)
     251   25       3       java.lang.String::indexOf (70 bytes)
     251   26       3       java.util.HashMap::getNode (148 bytes)
-    252   28     n 0       sun.misc.Unsafe::getObjectVolatile (native)   
+    252   28     n 0       sun.misc.Unsafe::getObjectVolatile (native)
     252   29       3       java.lang.String::indexOf (7 bytes)
     252   27       3       java.util.concurrent.ConcurrentHashMap::tabAt (21 bytes)
     253   30       1       java.lang.Integer::intValue (5 bytes)
@@ -37,12 +38,12 @@ java -XX:+PrintCompilation com.rishi.Main 15000
 ...
 ...
     369   39       3       com.rishi.PrimeNumbers::getNextPrimeAbove (43 bytes)   made not entrant
-	
+
 
 
 - First column is the timer in ms, that it took to run and its cumulative. Last row is the total time.
 - Second column is the order that the line item was run.
-- Third column is blank or 
+- Third column is blank or
 n = native, s = synchronized
 ! would mean that some exception handling was going on
 % would mean that the code has been natively compiled and is running in memory under the code cache.
@@ -54,14 +55,14 @@ n = native, s = synchronized
 - Fifth and final column is the line item that was run.
 
 # Compilers C1 & C2
-There are two compilers in Java. 
-C1 handles Native compilation levels 1-3, while C2 handles native level 4 only 
+There are two compilers in Java.
+C1 handles Native compilation levels 1-3, while C2 handles native level 4 only
 (which stores native compiles into the code cache).
 
-The JVM determines the compilation level based on how often it is being run and 
+The JVM determines the compilation level based on how often it is being run and
 how complex or time consuming it is – through profiling.
 
-As there is a tradeoff in optimizing more complex code (higher native tier/levels), 
+As there is a tradeoff in optimizing more complex code (higher native tier/levels),
 it only will do this with methods that are called more often, or have greater complexity.
 
 ######################
@@ -135,11 +136,11 @@ java -server Main 5000
 - C1 or client compiler and C2 or server compiler (tier 4)
 - runs for a longer time as a server
 
-If OS is 32-bit, only can use 
+If OS is 32-bit, only can use
 -client
 -server
 
-If OS is 64-bit, can use 
+If OS is 64-bit, can use
 -client
 -server
 -d64
@@ -220,7 +221,7 @@ even worse performance
 
 ## Happens-before
 
-Happens-before relationship is a guarantee that action performed by one thread 
+Happens-before relationship is a guarantee that action performed by one thread
 is visible to another action in different thread.
 
 If no happens-before, JIT compiler can reorder for optimization.
@@ -229,25 +230,25 @@ If no happens-before, JIT compiler can reorder for optimization.
 If a block of code is executed by a single thread, all the statements are executed in sequence.
 
 2. Monitor Lock rule
-An unlock on a monitor lock (exiting synchronized method/block) happens-before 
+An unlock on a monitor lock (exiting synchronized method/block) happens-before
 every subsequent acquiring on the same monitor lock.
 
 3. Volatile variable rule
 A write to a volatile field happens-before every subsequent read of that same field.
 
-Writes and reads of volatile fields have similar memory consistency effects as 
-entering and exiting monitors (synchronized block around reads and writes), 
+Writes and reads of volatile fields have similar memory consistency effects as
+entering and exiting monitors (synchronized block around reads and writes),
 but without actually aquiring monitors/locks.
 
 4. Thread start rule
-A call to Thread.start() on a thread happens-before every action in the started thread. 
-Say thread A spawns a new thread B by calling threadA.start(). 
-All actions performed in thread B's run method will see thread A's calling threadA.start() method and 
+A call to Thread.start() on a thread happens-before every action in the started thread.
+Say thread A spawns a new thread B by calling threadA.start().
+All actions performed in thread B's run method will see thread A's calling threadA.start() method and
 before that (only in thread A) happened before them.
 
 5. Thread join rule
-All actions in a thread happen-before any other thread successfully returns from a join on that thread. 
-Say thread A spawns a new thread B by calling threadA.start() then calls threadA.join(). 
+All actions in a thread happen-before any other thread successfully returns from a join on that thread.
+Say thread A spawns a new thread B by calling threadA.start() then calls threadA.join().
 Thread A will wait at join() call until thread B's run method finishes.
 After join method returns, all subsequent actions in thread A will see all actions performed in thread B's run method happened before them.
 
@@ -255,7 +256,7 @@ After join method returns, all subsequent actions in thread A will see all actio
 ## Passing Objects between methods
 
 - always pass by value
-- final - helps for inlining by compilers  
+- final - helps for inlining by compilers
 variable, method, class
 
 - java doesn't support "const correctness"
@@ -266,7 +267,7 @@ c can not point to any other object in heap, however, Customer object's state ca
 
 ## Escaping references
 
-class having map reference
+1. class having map reference
 if map is having getter, it can cause the breach in encapsulation if called clear()
 
 - strategy 1 is to pass iterator instead of getter for map
@@ -276,9 +277,29 @@ however it will still have remove method to mutate the map
 small memory footprint, however not ideal solution
 
 - strategy 3 - return the copy but as an immutable map
+cannot mutate the map by the client too
+
+Conclusion: for map field members, always return unmodifiable copy of map to client in getters
+
+2. the map reference having mutable Object as value
+- create copy constructor and return it in getter
+so any changes in the returned copy will be not reflected to the original object
+
+- or, return read only or immutable version of object => using interface and not providing setter
+Return interface reference
+
+- best way is to use modules in Java 9+ and only expose readonly implementations from the module
 
 
- 
+
+
+
+
+
+
+
+
+
 
 
 

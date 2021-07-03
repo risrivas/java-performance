@@ -8,11 +8,18 @@ public class Main {
         records.addCustomer(new Customer("John"));
         records.addCustomer(new Customer("Simon"));
 
-        records.getCustomers().clear();
+        // records.getCustomers().clear();
+        // records.find("John").setName("Jane");
+
+        ReadonlyCustomer c = records.find("John");
+        Customer customer = (Customer) c;
+        customer.setName("Jane");
 
         for (Customer next : records.getCustomers().values()) {
             System.out.println(next);
         }
+
+        System.out.println(records.find("John"));
 
         /*for (Customer next : records) {
             System.out.println(next);
