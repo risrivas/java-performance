@@ -1,0 +1,100 @@
+## Youtube
+https://www.youtube.com/watch?v=tM4YskS94b0
+
+#################
+# 1. Why needed
+#################
+- Basic flow in banking
+Clients...
+     ==> Gateway1... Gateway2...
+         ==> Matching or Trading Engine...
+
+- Most other commercial messaging frameworks have features bloat
+- Low latency is key
+- everything is multi-core, multi-socket, cloud
+- messaging keywords: Multicast, IPC, InfiniBand, RDMA, PCI-e
+- Aeron utilizes all this advancements in CPU architecture
+
+
+###################
+# 2. What features
+###################
+- Messaging
+Publishers
+         ==> Channel with different streams containing message packets
+              ==> Subscribers
+
+- Aeron is an open-source Library and not a framework
+
+- OSI Layer 4 Transport for message oriented streams
+1. Connection Oriented Communication
+- order of message packets arrived is important (TCP/UDP)
+
+2. Reliability
+- manage loss of data
+
+3. Flow Control
+- back presssure - so much data that subscribers can not keep up
+
+4. Congestion Avoidance/Control
+- need to avoid message congestion in the network
+
+5. Multiplexing
+- multiple channels and streams need to be managed
+
+
+###################
+# 3. How to design
+###################
+
+- Design Principles
+1. Clear separation of concerns
+2. Garbage free in steady state running
+3. Lock-free, wait-free and copy-free in data structures in the message path
+4. Respect the Single Writer Principle
+5. Major data structures are not shared
+6. Don't burden the main path with exceptional cases
+7. Non-blocking in the message path
+
+- Basic 3 things
+1. System Architecture
+2. Data Structures
+3. Protocols of Interactions
+
+###############
+# Architecture
+###############
+- IPC Log Buffer
+- Media (UDP, InfiniBand, PCI-e 3.0)
+- Function/Method call
+- Volatile Fields & Queues
+- IPC Ring/Broadcast Buffer
+
+- basic flow needed
+Publishers <==> Subscribers (full duplex)
+
+- media or underlying transport - UDP, InfiniBand, PCI-e 3.0
+Publishers - Sender/Receiver <== Media ==> Sender/Receiver - Subscribers (full duplex)
+
+- Job of Sender and Receiver is just to send the message to the destination as quickly as possible using Media
+- For all the other Admin and Events handling chores - Conductor
+- Conductors use Admin and Events
+- No shared data structure
+- Single threaded
+
+- Client is one VM which comprises of Publisher/Subsriber, Message, Conductor
+- Media Driver is one VM containing Sender, Conductor, Receiver
+
+##################
+# Data Structures
+##################
+- Maps
+- IPC Ring Buffers
+- IPC Broadcast Buffers
+- ITC Queues
+- Dynamic Arrays
+- Log Buffers
+
+
+
+
