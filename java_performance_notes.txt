@@ -1,3 +1,16 @@
+###############
+# Introduction
+###############
+- Performance considerations:
+memory constraints
+application speed
+
+- need to check both:
+Java programming language (20%)
+JVM (80%)
+
+
+
 
 # Compiler Flags
 
@@ -296,6 +309,112 @@ Return interface reference
 
 
 
+
+
+
+
+
+
+######################
+# Monitoring the Heap
+######################
+
+## Memory Leaks
+- JVM releases all the objects or memory allocations back to OS once the programs finishes execution
+- Soft leaks - when an object remains referenced when no longer needed
+
+- demo: softleaks package
+- change the VM arguments for CustomerHarness to be 10 MB using flag = -Xmx10m
+- CustomerHarness program will crash due to out of memory
+
+
+## JVisualVM
+- jvisualvm.exe can be found in = C:\Program Files\Java\jdk1.8.0_172\bin
+- however, if using JDK11, can be found and downloaded at:
+https://visualvm.github.io/download.html
+
+- run visualvm.exe
+C:\Users\rishi\Downloads\visualvm_213\bin
+
+- modify folder settings for full control security for everyone:
+C:\Users\rishi\AppData\Local\Temp\hsperfdata_rishi
+
+- for the first check, open Intellij (right click and Open)
+- in the Monitor tab - we can monitor Heap
+
+- rerun CustomerHarness program with 50MB heap
+- fix the memory leak issue in code and the heap monitoring will look good - like small sharp mountains
+
+
+## Heap Dump
+- Generating a Heap Dump, 2 ways:
+from JVisualVM - there is a button "Heap Dump"
+from command line - pass parameters to jvm so that whenever app crashes with out of memory error - it will generate heap dump file .hprof
+
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=<file path>
+
+- visualize heap dump file using Memory Analyzer (MAT)
+- download:
+https://www.eclipse.org/mat
+- once unzip - create a jre folder and copy jdk11 contents inside this folder
+
+- in MAT, we can Acquire heap dump of a running process or open a heap dump file already present
+- check Leak Suspect Reports
+
+
+##################################
+# Generational Garbage Collection
+##################################
+
+# "mark and sweep" process:
+- mark:
+collector checks what are the objects which needs to be retained
+all the application threads are stopped
+checks all the variables / statics / references on stack and referred objects on heap
+- sweep:
+all the objects in heap which are not marked are sweeped or deleted
+move the live objects to contiguous memory (compact) to avoid memory fragmentation
+
+
+# why generations
+- to avoid gc pauses, better to divide the heap into generations as most objects don't live for long
+- if an object survives it is likely to live forever
+- GC will run faster if there are mostly garbage with very less live objects as the "marking" will complete quickly
+
+- main generations: young and old
+new objects are put in smaller young generation
+as most of them are short-lived and theoretically garbage, GC will run and clean it quickly (minor collection)
+surviving objects are moved to old generation - theoretically there will be fewer objects
+once the threshold of old generation is also breached - GC will do major collection which is slow and time consuming
+
+
+# young generation - more details
+- divided into 3 regions: Eden, Survivor spaces: S0, S1
+- new objects are first filled into Eden
+- surviving objects are swapped to S0 or S1
+- benefits: GC will scan only 2/3 of young generation: Eden + S0 or S1
+- small drawback: 1/3 of young generation (S0 or S1) is not used
+- once objects survive minor collections and being swapped in S0 or S1 for more than 5-6 times => it will be qualified to move to old generation
+
+
+# viewing the generations in VisualVM
+- need to install plugin
+Tools -> Plugins -> Available Plugins -> install Visual GC
+- once installed - new Visual GC tab will appear
+- can run CustomerHarness program and see the Visual GC
+
+
+#######################################
+# Garbage Collector tuning & selection
+#######################################
+
+## Monitoring garbage collections
+- options can be used: -verbose:gc
+- create a Main class in softleaks package and run with VM arguments as: -Xmx10m -verbose:gc
+- information in logs look like:
+[3.692s][info][gc] GC(143) Pause Young (Normal) (G1 Evacuation Pause) 6M->1M(10M) 0.255ms
+
+- means that minor collection ran and heap size before is 6M and new heap size after is 1M, total heap size is 10M and total gc time is 0.255 ms
 
 
 
