@@ -5,9 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-
 public class CustomerManager {
-
     private final List<Customer> customers = new ArrayList<>();
     private int nextAvalailbleId = 0;
 

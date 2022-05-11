@@ -315,6 +315,34 @@ Return interface reference
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ######################
 # Monitoring the Heap
 ######################
@@ -417,6 +445,113 @@ Tools -> Plugins -> Available Plugins -> install Visual GC
 - means that minor collection ran and heap size before is 6M and new heap size after is 1M, total heap size is 10M and total gc time is 0.255 ms
 
 
+## tuning off automated heap allocation sizing
+- modify the Main class and rerun with 20MB heap
+- check in VisualVM - VisualGC
+- due to dynamic resizing - survivor spaces are made smaller and Eden space is larger
+- old generation will keep in increasing slowly until the full GC will occur
+- to disable dynamic sizing, use this flag: -XX:-UseAdaptiveSizePolicy
+- to check the running process flag (run it from jdk/bin folder):
+jinfo -flag UseAdaptiveSizePolicy <PID>
+
+rishi@DESKTOP-6V79CIU MINGW64 /c/Program Files/Java/jdk-11.0.11/bin
+$ ./jinfo.exe -flag UseAdaptiveSizePolicy 40368
+-XX:+UseAdaptiveSizePolicy
+
+
+## tuning garbage collection - old and young allocation
+- always minor collection is better than major collection
+
+a) flag to create the old generation vs young generation size: -XX:NewRatio=n
+- if -XX:NewRatio=4 => it means old generation will be 4 times bigger than young generation
+
+rishi@DESKTOP-6V79CIU MINGW64 /c/Program Files/Java/jdk-11.0.11/bin
+$ ./jinfo.exe -flag NewRatio 37948
+-XX:NewRatio=2
+
+- default is 2 meaning old generation is 2 times bigger than young generation
+
+- change new ratio to 1 so that young is equal to old:-Xmx20m -XX:NewRatio=1
+$ ./jinfo.exe -flag NewRatio 23056
+-XX:NewRatio=1
+
+- from VisualVM - we can see that young = old
+
+b) flag to create the survivor spaces (S0, S1) as compared to eden space size: -XX:SurvivorRatio=n
+
+- default SurvivorRatio is 8 => it means that each of S0 and S1 will be 1/8th of the total young generation size
+- thus 1/8 + 1/8 = 2/8 = 1/4th size of young generation => survivors space
+- remaining 3/4th => Eden space
+
+$ ./jinfo.exe -flag SurvivorRatio 23056
+-XX:SurvivorRatio=8
+
+- however, JVM may override this flag for maximum optimization
+
+c) flag to specify how many minor collections should an object survive before promoted to old generation: -XX:MaxTenuringThreshold=n
+
+- default MaxTenuringThreshold is 15 => means that object has to survive 15 minor collections before getting promoted to old generation
+- 15 is the maximum number for this flag already
+
+$ ./jinfo.exe -flag MaxTenuringThreshold 14716
+-XX:MaxTenuringThreshold=15
+
+- if any JVM allows higher value than 15 - like 16 or so... it means that object will never be promoted to old generation
+- thus, its best to not tune this flag at all
+
+
+################################
+# Selecting a garbage collector
+################################
+
+# Types of collector:
+
+a) Serial
+- single thread for all garbage collection
+- application and all application threads are paused
+- use case: for background tasks where performance is not that important and other apps need more performance efficiency
+- flag: -XX:+UseSerialGC
+
+b) Parallel
+- multiple threads doing minor collection
+- flag: -XX:+UseParallelGC
+
+c) Mostly Concurrent
+- during marking phase only - multiple GC threads mark and application threads are stopped
+- during sweeping phase - application threads are resumed
+- flag for concurrent mark sweep: -XX:+UseConcMarkSweepGC
+- flag for G1: -XX:+UseG1GC
+- G1 is default collector from JDK10 onwards
+
+
+#######################
+# G1 Garbage Collector
+#######################
+- rerun the Main application with 20M heap size
+- in VisualVM -> Visual GC => we can see that generations sizes and collections are very dynamic
+
+# How G1 works?
+- Heap is divided into equal sized regions like an excel spreadsheet - around 2048 by default
+- Each cell can be randomly put as eden, survivors, old and there can be also unallocated regions
+- minor collection: cleans all edens, survivors and reallocate regions
+- full gc - check all the regions as old and clean those regions first which has most garbage
+- entire old generation inspection may not be needed - just clean the most garbage old regions
+
+# Tuning G1GC
+- control number of GC threads: -XX:ConcGCThreads=n
+
+- when to initiate G1 collection: -XX:InitiatingHeapOccupancyPercent=n
+- default is 45% which means that when entire heap is 45% full, G1 will trigger
+- this is different than other GC algorithms which depends on Eden space / old generation space to fill up
+
+- String De-duplication: -XX:UseStringDeDuplication
+- remove duplicate String objects from heap which are not in String pools
+
+
+
+##########################################
+# Using a profiler to analyse performance
+##########################################
 
 
 

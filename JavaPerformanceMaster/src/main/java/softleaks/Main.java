@@ -5,14 +5,12 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        List<Customer> customers = new ArrayList<>();
+        final List<Customer> customers = new ArrayList<>();
         while (true) {
-            Customer c = new Customer("Matt");
+            final Customer c = new Customer("Matt");
             customers.add(c);
-            if (customers.size() > 100) {
-                for (int i = 0; i < 10; i++) {
-                    customers.remove(i);
-                }
+            if (customers.size() > 10000) {
+                customers.subList(0, 5000).clear();
             }
         }
     }
