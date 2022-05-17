@@ -553,6 +553,64 @@ c) Mostly Concurrent
 # Using a profiler to analyse performance
 ##########################################
 
+# Using a profiler
+- Profiler will connect to running JVM and extract data information from it
+- it means performance will be affected - so better to use only in DEV environment and not in PROD
+- example profilers: JProfiler, YourKit which are very expensive
+- open source: Java Mission Control (JMC)
+
+# build JMC
+- follow steps given in: https://github.com/openjdk/jmc#building-mission-control-from-source
+git clone git@github.com:openjdk/jmc.git
+
+# running the locally built jmc
+"target\products\org.openjdk.jmc\win32\win32\x86_64\JDK Mission Control\jmc"
+
+git bash:
+target/products/org.openjdk.jmc/linux/gtk/x86_64/JDK\ Mission\ Control/jmc
+
+cmd:
+cd "C:\Users\rishi\ps\jmc\target\products\org.openjdk.jmc\win32\win32\x86_64\JDK Mission Control"
+
+run command on cmd:
+jmc -vm "C:\Program Files\Java\jdk-11.0.11\bin"
+
+- the process to monitor can be expanded to se MBean Server (JMX Console) and Flight Recorder
+- can customize Overview, MBean Browser, System tabs etc
+
+# flight recorder
+- record the state of the JVM through the course of the run
+- start the application with VM arguments: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+- use JMC console to start the recording
+- equivalent JVM argument: -XX:StartFlightRecording=delay=2min,duration=60s,name=Test,filename=recording.jfr,settings=profile
+
+- analyse flight recorder dump
+
+
+########################
+# Assessing Performance
+########################
+- general idea is to get the start time and end time and get the duration
+https://www.baeldung.com/java-measure-elapsed-time
+- complications:
+native compilation - will run code faster
+garbage collection - will slow down
+
+- Microbenchmark - measuring the performance of a small piece of code
+- If run locally, more complications:
+assessing in isolation
+different hardware than production
+
+- If we dont want to have native compilation (which is a bad idea), we can use this flag: -XX:-TieredCompilation
+- JVM does native compilation for a method when its called many number of times => to enhance performance
+- to check the native compilation happens or not from logs, use this flag => -XX:+PrintCompilation
+- default compilation threshold is 10,000 - can reduce it to 1000 => -XX:CompileThreshold=1000
+
+
+
+
+
+
 
 
 
