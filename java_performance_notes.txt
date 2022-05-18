@@ -1,6 +1,6 @@
-###############
-# Introduction
-###############
+##########################
+# Chapter1 = Introduction
+##########################
 - Performance considerations:
 memory constraints
 application speed
@@ -9,6 +9,35 @@ application speed
 Java programming language (20%)
 JVM (80%)
 
+
+#####################################################
+# Chapter2 = Just In Time Compilation and Code Cache
+#####################################################
+
+# What is bytecode?
+Main.java => javac => Main.class => java Main
+
+- javac command converts or compiles Main.java to bytecode - Main.class
+- java command above is JVM which interprets and executes the bytecode
+- same bytecode can run on any OS
+- Java interpreter is different and more complex than traditional interpreters which goes line by line
+
+
+# The concept of "Just In Time Compilation"
+- JVM (java) has JIT compilation feature - whichever code block or method are hot and used more frequently,
+JIT compiles that portion of code into native machine code which runs faster than bytecodes interpretation
+- Thus, the code runs faster the longer it is left to run => also known as JVM warmup
+
+- In JVM, there are multiple threads:
+one thread is doing bytecode interpretation
+another thread is doing JIT compilation
+thus if more time is given for code run - all the native compilation would have been completed
+and the code will execute faster
+
+
+# Code example = performanceexample1 package
+- run the PerformanceExample1Main class with Program arguments (not VM arguments) as 10
+- or from command line: java PerformanceExample1Main 10
 
 
 
