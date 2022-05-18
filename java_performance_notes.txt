@@ -607,6 +607,14 @@ different hardware than production
 - default compilation threshold is 10,000 - can reduce it to 1000 => -XX:CompileThreshold=1000
 
 
+#########################
+# Benchmarking with JMH
+#########################
+- install JMH
+https://github.com/openjdk/jmh#preferred-usage-command-line
+
+
+
 
 
 
