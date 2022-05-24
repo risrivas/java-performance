@@ -2,6 +2,7 @@ package performanceexample1;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishi on 13/06/2021
@@ -9,8 +10,8 @@ import java.time.Instant;
 public class PerformanceExample1Main {
 
     public static void main(String[] args) throws InterruptedException {
-        /*TimeUnit.SECONDS.sleep(20L);
-        System.out.println("starting the work now");*/
+        TimeUnit.SECONDS.sleep(20L);
+        System.out.println("starting the work now");
 
         Instant start = Instant.now();
 

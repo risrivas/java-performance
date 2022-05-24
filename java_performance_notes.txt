@@ -1,5 +1,5 @@
 ##########################
-# Chapter1 = Introduction
+# Chapter 1 = Introduction
 ##########################
 - Performance considerations:
 memory constraints
@@ -11,7 +11,7 @@ JVM (80%)
 
 
 #####################################################
-# Chapter2 = Just In Time Compilation and Code Cache
+# Chapter 2 = Just In Time Compilation and Code Cache
 #####################################################
 
 # What is bytecode?
@@ -40,22 +40,18 @@ and the code will execute faster
 - or from command line: java PerformanceExample1Main 10
 
 
+# Finding out which methods are getting compiled
+- Compiler Flags: -XX:+PrintCompilation
+- example:
+java -XX:+PrintCompilation PerformanceExample1Main 5000
 
-# Compiler Flags
+OR, run from IntelliJ Terminal
+PerformanceExample1\target\classes>
 
-######################
--XX:+PrintCompilation
-######################
+java -XX:+PrintCompilation PerformanceExample1Main 5000
+java -XX:+PrintCompilation PerformanceExample1Main 15000
 
-java -XX:+PrintCompilation Main 5000
-
-- run from IntelliJ Terminal
-C:\Users\rishi\Downloads\Study\Udemy\java-performance\PerformanceExample1\target\classes>
-
-java -XX:+PrintCompilation com.rishi.Main 5000
-java -XX:+PrintCompilation com.rishi.Main 15000
-
-# sample output
+- sample output:
 ...
 ...
     246   20  s    3       java.lang.StringBuffer::append (13 bytes)
@@ -82,7 +78,6 @@ java -XX:+PrintCompilation com.rishi.Main 15000
     369   39       3       com.rishi.PrimeNumbers::getNextPrimeAbove (43 bytes)   made not entrant
 
 
-
 - First column is the timer in ms, that it took to run and its cumulative. Last row is the total time.
 - Second column is the order that the line item was run.
 - Third column is blank or
@@ -96,6 +91,7 @@ n = native, s = synchronized
 
 - Fifth and final column is the line item that was run.
 
+
 # Compilers C1 & C2
 There are two compilers in Java.
 C1 handles Native compilation levels 1-3, while C2 handles native level 4 only
@@ -107,24 +103,40 @@ how complex or time consuming it is – through profiling.
 As there is a tradeoff in optimizing more complex code (higher native tier/levels),
 it only will do this with methods that are called more often, or have greater complexity.
 
-######################
-# Outputting to a file
-######################
 
-java -XX:+UnlockDiagnosticVMOptions -XX:+LogCompilation Main 5000
+# Logging the compilation activity
+java -XX:+UnlockDiagnosticVMOptions -XX:+LogCompilation PerformanceExample1Main 5000
 
 - creates a log file as : hotspot_pid11016.log
 
-######################
--XX:+PrintCodeCache
--XX:ReservedCodeCacheSize=28m
-######################
 
-java -XX:+PrintCodeCache Main 5000
+# Tuning the code cache size
+- after logging the compilation activity, how can we use it to enhance performance
+- native compiled code - level 4 by C2 compiler -> its placed in the code cache
+- however, the code cache size is limited
+- in a large application - where many methods can be compiled -> default code cache size may be insufficient
 
-- prints the code cache size
+- warning may appear in logs:
+VM warning: CodeCache is full. Compiler has been disabled.
 
-- sample output
+- can print the code cache size: -XX:+PrintCodeCache
+- example:
+java -XX:+PrintCodeCache PerformanceExample1Main 5000
+
+- sample output with Java 11:
+CodeHeap 'non-profiled nmethods': size=120064Kb used=53Kb max_used=53Kb free=120010Kb
+ bounds [0x000002ddf7c40000, 0x000002ddf7eb0000, 0x000002ddff180000]
+CodeHeap 'profiled nmethods': size=120000Kb used=189Kb max_used=189Kb free=119810Kb
+ bounds [0x000002ddf0710000, 0x000002ddf0980000, 0x000002ddf7c40000]
+CodeHeap 'non-nmethods': size=5696Kb used=1033Kb max_used=1040Kb free=4663Kb
+ bounds [0x000002ddf0180000, 0x000002ddf03f0000, 0x000002ddf0710000]
+ total_blobs=474 nmethods=173 adapters=213
+ compilation: enabled
+              stopped_count=0, restarted_count=0
+ full_count=0
+
+
+- sample output with Java 8:
 CodeCache: size=245760Kb used=1156Kb max_used=1168Kb free=244603Kb
  bounds [0x0000000002d70000, 0x0000000002fe0000, 0x0000000011d70000]
  total_blobs=300 nmethods=46 adapters=167
@@ -133,15 +145,18 @@ CodeCache: size=245760Kb used=1156Kb max_used=1168Kb free=244603Kb
 size = around 20 MB
 used = around 1 MB
 
-- Java 8+ versions can have 240+ MB cache size
-- tune params
-InitialCodeCacheSize
-ReservedCodeCacheSize
-CodeCacheExpansionSize
+- Java 8+ versions can have 240+ MB code cache size
 
-----------------
+- Change code cache size using 3 VM arguments:
+InitialCodeCacheSize = code cache size when the app is started - normally around 160KB
+ReservedCodeCacheSize = max code cache size possible
+CodeCacheExpansionSize = how quickly the code cache should grow when initially full
 
-java -XX:ReservedCodeCacheSize=28m -XX:+PrintCodeCache Main 5000
+- example:
+Change the reserved code cache size to 28MB: -XX:ReservedCodeCacheSize=28m
+
+- sample for Java 8
+java -XX:ReservedCodeCacheSize=28m -XX:+PrintCodeCache PerformanceExample1Main 5000
 
 - sample output
 CodeCache: size=28672Kb used=1256Kb max_used=1268Kb free=27416Kb
@@ -150,9 +165,24 @@ CodeCache: size=28672Kb used=1256Kb max_used=1268Kb free=27416Kb
  compilation: enabled
 
 
-######################
-# 32-bit vs 64-bit JVM
-######################
+## Remote monitoring the code cache with JConsole
+- launch JConsole:
+C:\Program Files\Java\jdk-11.0.11\bin\jconsole.exe
+
+- in order for jconsole to work, this folder should have write permissions:
+C:\Users\rishi\AppData\Local\Temp\hsperfdata_rishi
+
+- folder properties -> Security -> give Full Control or Modify permissions to Everyone
+- now JConsole can be connected to a JVM and analyse memory code cache
+- however, using JConsole decreases the performance of JVM as JVM has to do some extra work to communicate and provide data to JConsole
+- thus the extra code cache size of around 2MB is used if using jconsole
+
+
+
+################################
+# Chapter 3 = Selecting the JVM
+################################
+- 2 compilers present = C1 (tier level 1-3), C2 (tier level 4)
 
 # 32-bit
 
