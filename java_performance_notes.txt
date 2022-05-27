@@ -276,11 +276,15 @@ even worse performance
 ########################################################
 # Chapter 4 - How memory works - the stack and the heap
 ########################################################
+
+## how the stack works
 - every thread has its own stack
 - local variables are put in the executing thread stack
 - local variables are removed from stack as soon as the scope ends
 - always pass by value (copy)
 
+
+## how the heap works
 - objects created on heap, shared by all the threads
 - reference to objects is stored in thread stack
 
@@ -319,8 +323,9 @@ Thread A will wait at join() call until thread B's run method finishes.
 After join method returns, all subsequent actions in thread A will see all actions performed in thread B's run method happened before them.
 
 
-## Passing Objects between methods
-
+##############################################
+# Chapter 5 - Passing Objects between methods
+##############################################
 - always pass by value
 - final - helps for inlining by compilers
 variable, method, class
