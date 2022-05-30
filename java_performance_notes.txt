@@ -326,7 +326,12 @@ After join method returns, all subsequent actions in thread A will see all actio
 ##############################################
 # Chapter 5 - Passing Objects between methods
 ##############################################
-- always pass by value
+- Java always pass by value (copy of original variable)
+- demo code: ExploringMemoryMain
+
+- Other languages like C++, C# support pass by reference
+- ex: passing method1(int& var1) OR method1(byref int var1)
+
 - final - helps for inlining by compilers
 variable, method, class
 
@@ -336,21 +341,40 @@ final Customer c = new Customer("Rishi");
 
 c can not point to any other object in heap, however, Customer object's state can be changed
 
-## Escaping references
 
+
+################################
+# Chapter 6 - Memory Exercise 1
+################################
+- exercise code: memorytest1
+
+
+##################################
+# Chapter 7 - Escaping references
+##################################
+
+# what is an escaping reference
+- when any mutable field reference is passed via getter method in a class, it can cause escaping reference problem
+- ex: there is a Map field in a class and a getter method is passed
+- if the client gets the map reference using getter and calls clear() method - the actual class map will also be cleared!
+
+# solve this issue
 1. class having map reference
 if map is having getter, it can cause the breach in encapsulation if called clear()
 
-- strategy 1 is to pass iterator instead of getter for map
-however it will still have remove method to mutate the map
+- strategy 1 is to pass iterator instead of getter for map - return map.values().iterator()
+however it will still have remove() method to mutate the map
 
-- strategy 2 - return the copy of map
+- strategy 2 - return the copy of map - new HashMap(map)
 small memory footprint, however not ideal solution
 
-- strategy 3 - return the copy but as an immutable map
+- strategy 3 - return the copy but as an immutable map:
+  java11: Map.copyOf(map)
+  java8: Collections.unmodifiableMap(map)
+
 cannot mutate the map by the client too
 
-Conclusion: for map field members, always return unmodifiable copy of map to client in getters
+==> Conclusion: for map field members, always return unmodifiable copy of map to client in getters
 
 2. the map reference having mutable Object as value
 - create copy constructor and return it in getter
@@ -360,6 +384,16 @@ so any changes in the returned copy will be not reflected to the original object
 Return interface reference
 
 - best way is to use modules in Java 9+ and only expose readonly implementations from the module
+create module-info.java in src/
+create 2 packages:
+1 package contains CustomerRecords, Readonlycustomer => only export this
+2 package contains Customer => don't export this
+
+
+################################
+# Chapter 8 - Memory Exercise 2
+################################
+- exercise code: memorytest2
 
 
 
@@ -397,13 +431,9 @@ Return interface reference
 
 
 
-
-
-
-
-######################
-# Monitoring the Heap
-######################
+###################################
+# Chapter 12 - Monitoring the Heap
+###################################
 
 ## Memory Leaks
 - JVM releases all the objects or memory allocations back to OS once the programs finishes execution
@@ -432,6 +462,10 @@ C:\Users\rishi\AppData\Local\Temp\hsperfdata_rishi
 - fix the memory leak issue in code and the heap monitoring will look good - like small sharp mountains
 
 
+#####################################
+# Chapter 13 - Analysing a Heap Dump
+#####################################
+
 ## Heap Dump
 - Generating a Heap Dump, 2 ways:
 from JVisualVM - there is a button "Heap Dump"
@@ -448,9 +482,9 @@ https://www.eclipse.org/mat
 - check Leak Suspect Reports
 
 
-##################################
-# Generational Garbage Collection
-##################################
+###############################################
+# Chapter 14 - Generational Garbage Collection
+###############################################
 
 # "mark and sweep" process:
 - mark:
@@ -490,9 +524,9 @@ Tools -> Plugins -> Available Plugins -> install Visual GC
 - can run CustomerHarness program and see the Visual GC
 
 
-#######################################
-# Garbage Collector tuning & selection
-#######################################
+####################################################
+# Chapter 15 - Garbage Collector tuning & selection
+####################################################
 
 ## Monitoring garbage collections
 - options can be used: -verbose:gc
@@ -607,9 +641,9 @@ c) Mostly Concurrent
 
 
 
-##########################################
-# Using a profiler to analyse performance
-##########################################
+#######################################################
+# Chapter 16 - Using a profiler to analyse performance
+#######################################################
 
 # Using a profiler
 - Profiler will connect to running JVM and extract data information from it
@@ -645,9 +679,9 @@ jmc -vm "C:\Program Files\Java\jdk-11.0.11\bin"
 - analyse flight recorder dump
 
 
-########################
-# Assessing Performance
-########################
+#####################################
+# Chapter 17 - Assessing Performance
+#####################################
 - general idea is to get the start time and end time and get the duration
 https://www.baeldung.com/java-measure-elapsed-time
 - complications:
@@ -665,9 +699,9 @@ different hardware than production
 - default compilation threshold is 10,000 - can reduce it to 1000 => -XX:CompileThreshold=1000
 
 
-#########################
-# Benchmarking with JMH
-#########################
+#####################################
+# Chapter 18 - Benchmarking with JMH
+#####################################
 - install JMH
 https://github.com/openjdk/jmh#preferred-usage-command-line
 
