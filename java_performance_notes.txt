@@ -397,11 +397,35 @@ create 2 packages:
 
 
 
+##############################################################
+# Chapter 9 - Metaspace and internal JVM memory optimisations
+##############################################################
+- memory is divided into 3 regions: stack, heap, metaspace
+- metaspace contains all the metadata
+- PermGen has been decommissioned since Java 8
+
+- static primitives + static object references are stored in metaspace
+- ex:
+static int num = 3; => num=3 is stored in metaspace
+static Map<String, String> map = new HashMap<>(); => map reference is stored in metaspace and actual map object in heap
+
+- Java objects are always created on the heap
+- however, sometimes JVM may optimise in case the object is only used locally in a method and create the object in stack
+
+- can call String.intern() to explicitly place a String object in String pool
+- ex:
+Interger i = 76;
+String one = i.toString().intern();
+String two = "76";
+==> both one and two are pointing to same String object in String pool
+
+- String pools have moved to Heap since Java 7
 
 
 
-
-
+################################################
+# Chapter 10 - Tuning the JVM's Memory Settings
+################################################
 
 
 
