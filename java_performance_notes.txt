@@ -427,11 +427,38 @@ String two = "76";
 # Chapter 10 - Tuning the JVM's Memory Settings
 ################################################
 
+# how the string pool is implemented
+- using a HashMap
+- in JDK11 - by default the bucket size is 65536
+- we can have several hash collisions - meaning that many strings can be placed in the same bucket
+
+- use JVM flag: -XX:+PrintStringTableStatistics
+- it will print where we can check the bucket statistics
+SymbolTable statistics
+StringTable statistics
 
 
+# tuning the size of the string pool
+- use flag: -XX:StringTableSize=<prime number only>
+- example - 120121
 
 
+# tuning the size of the heap
+- first lets analyse the current heap
+java -XX:+UnlockDiagnosticVMOptions -XX:+PrintFlagsFinal
 
+- then check these 2 values:
+MaxHeapSize (around 4 GB)
+InitialHeapSize (around 256 MB)
+
+- use flag to change: -XX:MaxHeapSize=8g
+- for initial heap size: -XX:InitialHeapSize=1g
+- shortcuts for both above: -Xmx8g, -Xms1g
+
+
+##############################################
+# Chapter 11 - Introducing Garbage Collection
+##############################################
 
 
 
