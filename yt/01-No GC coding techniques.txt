@@ -1,0 +1,292 @@
+#########################################
+# No GC techniques for low latency Java
+#########################################
+https://www.youtube.com/watch?v=36t5OLLzA6c
+
+
+##########
+# Agenda
+##########
+- What is low latency
+- Where low latency is required
+- Why Java for low latency
+- Why no garbage
+- No garbage techniques
+
+
+######################
+# What is low latency
+######################
+- Latency is a time interval between stimulus and response
+Webservice call
+Method / Function call
+JMS message
+RMI call
+
+- Low latency is defined by non-functional requirements and have measurable objectives
+
+- Low latency in HFT
+ex:
+11% of all 2014 observable orders in the Canadian marketplace lasted < 1ms
+300-400ms to blink your eye
+
+
+#################################
+# Where low latency is required
+#################################
+
+# Low latency domains
+HFT
+Online gaming
+Betting and bidding
+Video chats
+Vehicle autopilot systems
+
+
+# Low latency metrics
+Maximum latency
+Average latency
+
+- Both metrics are affected by GC
+
+
+# Latency abusers
+- slow external resources like DB
+- ineffective algorithms
+- improper data structures
+- communication channels
+- JVM
+
+
+###########################
+# Why Java for low latency
+###########################
+- wide ecosystem
+- speed of development
+- more smooth hiring
+- speed of code
+
+
+################################
+# No Garbage coding techniques
+################################
+
+
+################
+# 1. Singleton
+################
+software design pattern that restricts the instantiation of a class to one "single" instance
+
+# Benefits
+- reusing instance across the system
+- reusing instance along time
+- flexibility in instantiation
+
+# Trade offs
+- Testing
+- Dependency hiding
+- Classloading
+- Deserialization
+
+# One implementation:
+
+public enum SolarSystem {
+    SOLAR_SYSTEM;
+
+    private Set planets;
+
+    public Set getPlanets() {
+        return planets;
+    }
+
+    public void setPlanets(Set planets) {
+        this.planets = planets;
+    }
+}
+
+
+###############
+# 2. Flyweight
+###############
+A flyweight is an object that minimizes memory usage by sharing as much data as possible with other similar objects
+
+- example:
+
+public class PlanetFactory {
+    private static Map<String, Planet> planetCache = new HashMap<>();
+
+    public static Planet getPlanet(String name) {
+        Planet result = planetCache.get(name);
+        if(result == null) {
+            result = new Planet();
+            planetCache.put(name, result);
+        }
+        return result;
+    }
+}
+
+
+# Benefits
+- reducing memory consumption with caching mechanism
+
+# Trade offs
+- additional code complexity
+- flyweight objects must be immutable
+
+
+###########################
+# 3. Presizing Collections
+###########################
+Presizing collection is giving some explicit starting capacity during collection initialization
+
+- example:
+List<Planets> planets = new ArrayList<>(8);
+List<String> planets2 = new ArrayList<>();
+
+# Benefits
+- avoid allocation of memory which will not be used
+- avoid reallocation cost if collection will grow bigger than initial
+
+# Trade offs
+- Additional analysis is required before implementation
+
+
+######################################
+# 4. Using primitive type collections
+######################################
+
+# There are a couple of libraries providing the collections where primitives coule be stored instead of wrappers
+- Trove
+- Apache commons primitive
+- High performance primitive collections
+
+# Benefits
+saving memory by using primitives instead of wrappers
+
+# Trade offs
+- using external libraries is additional risk
+- maintaining extra dependency
+
+
+##########################
+# 5. Using StringBuilder
+##########################
+helper class to work with String
+
+# Benefits
+- mutable, allowing multiple operations without String creation
+
+
+###########################
+# 6. Enumerating constants
+###########################
+- example:
+
+public class Planets {
+    public static final int MERCURY = 1;
+    public static final int VENUS = 2;
+    public static final int EARTH = 3;
+}
+
+# Benefits
+- saving memory on using ints instead of Strings
+
+
+OR
+
+public enum Planets {
+    MERCURY, VENUS, EARTH
+}
+
+# Benefits
+- Enums are more laconic
+- Enumerating constants could be applied where semantically enum is not applicable
+
+# Trade Offs
+- Enum values() method is heavy memory abuser
+
+
+#################################
+# 7. Guarding memory allocations
+#################################
+- ex without guarding:
+logger.debug(,,Order ID" + id + ,,created");
+
+- ex with guarding:
+if(logLevel == DEBUG) {
+    logger.debug(,,Order ID" + id + ,,created");
+}
+
+
+#####################
+# 8. Reusable Object
+#####################
+Reusable object is an object which state you could reset by simple method call (reset() for example)
+
+# Benefits
+- saving memory on allocating the object
+
+# Trade offs
+- Object automatically becomes mutable
+
+# example:
+public class SolarSystem {
+    private Star star;
+    private Set planets;
+
+    // setters
+
+    public void reset() {
+        star = null;
+        planets = null;
+    }
+}
+
+
+=== pause at 26:12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

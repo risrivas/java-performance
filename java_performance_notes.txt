@@ -460,6 +460,8 @@ InitialHeapSize (around 256 MB)
 # Chapter 11 - Introducing Garbage Collection
 ##############################################
 
+- Java is a managed language
+
 
 
 
