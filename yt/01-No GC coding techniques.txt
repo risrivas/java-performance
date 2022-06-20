@@ -1,6 +1,6 @@
-#########################################
-# No GC techniques for low latency Java
-#########################################
+########
+# Link
+########
 https://www.youtube.com/watch?v=36t5OLLzA6c
 
 
@@ -243,7 +243,6 @@ public class SolarSystem {
 }
 
 
-=== pause at 26:12
 
 
 

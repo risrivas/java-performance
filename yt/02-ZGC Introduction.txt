@@ -1,0 +1,98 @@
+########
+# Link
+########
+https://www.youtube.com/watch?v=7k_XfLGu-Ts&list=PLjAaPPG_iSHB7-lpKRGll8_H7YnOiElk-&index=2
+
+
+#########
+# Agenda
+#########
+- What is ZGC?
+- Performance
+- How to get started?
+
+
+##############
+# What is ZGC
+##############
+- a scalable low latency garbage collector available from JDK11
+
+- 10ms = Max GC pause time
+- TB = multi-terabyte heaps
+
+- Concurrent
+Marking
+Relocation / Compaction
+Relocation Set Selection
+Reference Processing
+JNI WeakRefs Cleaning
+StringTable Cleaning
+
+- Single generation
+- Load barriers
+- Colored pointers
+- Region-based
+- Partial Compaction
+- NUMA-ware
+
+- ZGC pause times do NOT increase with heap or live-set sizes
+
+
+##############
+# ZGC Phases
+##############
+- GC Cycle:
+
+Pause Mark Start => (Concurrent Mark / Remap) => Pause Mark End => (Concurrent Prepare for Reloc.) => Pause Relocate Start => (Concurrent Relocate)
+
+- Pause Mark Start = Scan thread stacks and get Object pointers root reference
+- Concurrent Mark / Remap = concurrently walk through Object graphs and mark live objects
+- Pause Mark End = Synchronization point where all the live objects and dead objects are known
+- Concurrent Prepare for Reloc. = Reference processing (Soft, weak, phantom), weak root cleaning and relocation set selection (heap memory which needs compaction)
+- Pause Relocate Start = Scan thread stacks and gets memory roots to start compaction
+- Concurrent Relocate = concurrently compact heap (the most heavy process)
+
+- the 3 pauses are less than 10ms each
+
+
+##############
+# Performance
+##############
+- performance is much better than G1 and parallel collectors
+
+
+######################
+# How to get started
+######################
+- VM argument: -XX:+UseZGC
+- extra: -XX:+UnlockExperimentalVMOptions -XX:+UseZGC
+
+- Tuning options: -Xmx<size> -XX:ConcGCThreads=<number>
+- Logging: -Xlog:gc (basic); -Xlog:gc* (detailed)
+
+- only supported on Linux OS
+
+
+##########
+# Summary
+##########
+- Low latency
+ZGC pause times stay below 10ms
+
+- Scalable
+ZGC pause times do NOT increase with the heap or live-set size
+
+- Easy to Tune
+Just set the heap size
+
+
+#############
+# Reference
+#############
+https://wiki.openjdk.org/pages/viewpage.action?pageId=75956265#Main-JDK11
+
+
+
+
+
+

@@ -1,0 +1,111 @@
+########
+# Link
+########
+https://www.youtube.com/watch?v=TX2YmQ67Pao&list=PLjAaPPG_iSHB7-lpKRGll8_H7YnOiElk-&index=3
+
+
+############
+# Solutions
+############
+
+# Cluster of Nodes
+- Say there are 2 nodes - one at NY and other at San Francisco
+- Speed of light to cover the distance - 15ms
+- Using Fiber - 3 * 15 >= 45ms
+
+- TCP round trip latency with 2 Linux hosts connected directly with 10Gbps Ethernet
+Some tweaks = 40 micro secs
+Busy polling and CPU affinity = 30 micro secs
+Expert mode = 25 micro secs
+
+- Delays from routers, switches, cloud solutions >= 100 micro secs
+
+
+# Different processes
+- on the same machine
+- inter-process communication is in the milli seconds
+- context switch = L1, L2, L3 + TLB affected
+
+
+# In-memory object
+- garbage collect
+- Latency > 1 seconds
+- GC -> L1, L2, L3 + TLB totally ruined
+
+
+# In-JVM-memory
+- read 64-bits of data from Main Memory = 100ns
+- Volatile read
+L3 = 20ns
+L2 = 7ns
+L1 = 0.5ns
+CPU registers
+
+
+# Speedment systems
+connect to external systems (market data, routing engine, OMS) using high speed bus
+
+# CPU
+- L3 is shared, L1 and L2 are local to a particular CPU Core instance
+- similarly if we can use L3 cache as high speed bus, we can get ULL system
+- CPU connects to memory via memory controller and also has IO controller - for each CPU core
+
+
+# The Difference
+- Reaching L1 CPU cache takes 0.5ns => this is equal to speed of light to travel 4 inches
+- If a DB query takes 1 seconds => light will travel to moon (3,00,000 km/s)
+- thus, keep the data close by using In-JVM-memory technology
+
+
+######################
+# Ease of Development
+######################
+- use existing API - Java standard stream
+
+- SQL and Java streams
+FROM - stream()
+COUNT - count()
+LIMIT - limit()
+DISTINCT - distinct()
+SELECT - map()
+WHERE - filter()
+HAVING - filter()
+JOIN - flatmap() or map()
+UNION - concat(s0,s1).distinct()
+ORDER BY - sorted()
+OFFSET - skip()
+GROUP BY - collect(groupingBy())
+
+- examples:
+SELECT * FROM FILM
+WHERE RATING = 'PG-13'
+
+films.stream()
+.filter(Film.RATING.equals(Rating.PG13))
+
+- escape analysis - the stack allocation of objects is done => no heap allocation
+- if the object created locally in a method - and its not escaped - it will never use the heap
+- streams introspect their own pipeline
+- off-heap storage and indexing
+- collectors and aggregators don't create intermediate objects
+- MVCC immutable snapshots
+- O(1) and O(log N) operations
+
+
+###################################
+# Use case: Transportation Company
+###################################
+
+== pause at 25:40
+
+
+
+
+
+
+
+
+
+
+
+
