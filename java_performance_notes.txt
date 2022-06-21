@@ -459,29 +459,13 @@ InitialHeapSize (around 256 MB)
 ##############################################
 # Chapter 11 - Introducing Garbage Collection
 ##############################################
+- Java is a managed language meaning Java works out when objects are no longer needed
+- Memory leaks should NOT be impossible in Java
 
-- Java is a managed language
+- System.gc() is equivalent to Runtime.getRuntime().gc()
+- Other useful method: Runtime.getRuntime().freeMemory()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- dont use finalize() method - deprecated since Java9
 
 
 ###################################
@@ -765,6 +749,33 @@ https://github.com/openjdk/jmh#preferred-usage-command-line
 
 
 
+
+
+
+
+
+
+#######################
+# Chapter 23 - GraalVM
+#######################
+https://www.graalvm.org/
+
+- High-performance polyglot VM written in Java
+- alternate VM for running apps written in JavaScript, Python, Ruby, R, JVM based languages, LLVM based languages like C, C++
+- only for Linux and MacOS
+
+- Alternative JVM, Alternative Java Compiler, Native Compiler (no JVM required)
+- using graal compiler and VM gives slightly better performance
+
+- graal can be used to create native machine code instead of bytecode
+- need to install "gcc" and "zlib1g-dev" first
+- input is bytecode - means that .class should be created
+- command is: native-image Main
+- it will generate "main" file
+- run it like: ./main
+
+- Using the Graal compiler with open JDK 11 on Linux only
+- VM arguments: -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler
 
 
 
